@@ -21,7 +21,8 @@ dotenv.load();
 // make bluebird default Promise
 Promise = require('bluebird'); // eslint-disable-line no-global-assign
 var PORT = process.env.PORT || 4000;
-
+// Connect to MongoDB
+const db = require('./libs/db');
 // parse body params and attache them to req.body
 app.use(bodyParser.urlencoded({
     extended: true
@@ -52,6 +53,11 @@ app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     next();
 });
+
+
+const authRouter = require('./routes/auth.router');
+app.use("/api/auth", authRouter);
+
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => res.status(httpStatus.NOT_FOUND).json({
