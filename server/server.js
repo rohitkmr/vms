@@ -11,11 +11,12 @@ const httpStatus = require('http-status');
 const helmet = require('helmet');
 const logger = require('./helpers/logger');
 const chalk = require('chalk');
-
+var socketio = require('socket.io');
+var io = socketio();
 var dotenv = require('dotenv');
 // Create Express app
 const app = express();
-
+app.io = io;
 // Load environment variables from .env file
 dotenv.load();
 // make bluebird default Promise
@@ -54,6 +55,9 @@ app.use(function (req, res, next) {
     next();
 });
 
+// pass the authorization checker middleware
+const authCheckMiddleware = require('./middleware/authCheck');
+app.get('/api', authCheckMiddleware);
 
 const authRouter = require('./routes/auth.router');
 app.use("/api/auth", authRouter);
@@ -71,3 +75,5 @@ app.listen(PORT, function (error) {
         logger.info(chalk.green.bold(`IZN API Server listen on port: ${PORT}`));
     }
 });
+
+module.exports = app;
