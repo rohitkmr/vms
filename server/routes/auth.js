@@ -2,11 +2,16 @@ var express = require('express');
 var router = express.Router();
 var passport = require('passport');
 require('../libs/passport')(passport);
-const userController = require('../controller/user.controller');
+const authController = require('../controller/auth.controller');
 const hasRole = require('../middleware/hasRole');
 const requireAuth = passport.authenticate('jwt', {
     session: false
 });
+
+module.exports = function (app) {
+    app.post('/auth', authController.auth);
+    //router.post('/signup', requireAuth, hasRole("ROLE_ADMIN"), userController.signup);
+}
 
 /**
  * @api {post} /signup Signup
@@ -16,7 +21,7 @@ const requireAuth = passport.authenticate('jwt', {
  * @apiParam none
  * @apiSuccess {Object} User Object
  */
-router.post('/signup', requireAuth, hasRole("ROLE_ADMIN"), userController.signup);
+//router.post('/signup', requireAuth, hasRole("ROLE_ADMIN"), userController.signup);
 /**
  * @api {post} /signin Signin
  * @apiDescription To looged in into system
@@ -26,6 +31,6 @@ router.post('/signup', requireAuth, hasRole("ROLE_ADMIN"), userController.signup
  * @apiParam {String} password
  * @apiSuccess {Object} User Object
  */
-router.post('/signin', userController.signin);
+//router.post('/signin', userController.signin);
 
-module.exports = router
+//module.exports = router

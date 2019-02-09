@@ -55,12 +55,18 @@ app.use(function (req, res, next) {
     next();
 });
 
-// pass the authorization checker middleware
-const authCheckMiddleware = require('./middleware/authCheck');
-app.get('/api', authCheckMiddleware);
+const routes = express.Router();
 
-const authRouter = require('./routes/auth.router');
-app.use("/api/auth", authRouter);
+// pass the authorization checker middleware
+//const authCheckMiddleware = require('./middleware/authCheck');
+//app.get('/api', authCheckMiddleware);
+
+//const authRouter = require('./routes/auth.router');
+//app.use("/api/auth", authRouter);
+// Add all the routes inside the routes folder
+require('./routes')(routes);
+// apply the routes to our application with the prefix /api
+app.use('/api', routes);
 
 
 // catch 404 and forward to error handler
