@@ -2,52 +2,66 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt-nodejs');
 const Schema = mongoose.Schema;
 
-var UserSchema = new Schema(
-    {
-        username: {
-            type: String,
-            unique: true,
-            required: true
-        }, plainPassword: {
-            type: String,
-            required: false
-        },
-        password: {
-            type: String,
-            required: true
-        },
-        name: {
-            type: String,
-            required: true
-        },
-        email: {
-            type: String,
-            lowercase: true,
-            required: false
-        },
-        avatarUrl: {
-            type: String,
-            required: true,
-        },
-        contactNo: {
-            type: String,
-            required: false
-        },
-        role: {
-            type: String,
-            enum: ['ROLE_ADMIN', 'ROLE_GATEMAN', 'ROLE_PA'],
-            default: 'ROLE_ADMIN'
-        },
-        isDeleted: {
-            type: Boolean,
-            default: false
-        }
-
+var UserSchema = new Schema({
+    username: {
+        type: String,
+        unique: true,
+        required: true
     },
-    {
-        timestamps: true
+    plainPassword: {
+        type: String,
+        required: false
+    },
+    password: {
+        type: String,
+        required: true
+    },
+    name: {
+        type: String,
+        required: true,
+        index: true
+    },
+    email: {
+        type: String,
+        lowercase: true,
+        required: false,
+        unique: true,
+    },
+    avatar: {
+        type: String,
+        required: true,
+    },
+    phoneNumber: {
+        type: String,
+        required: false,
+        index: true
+    },
+    role: {
+        type: String,
+        enum: ['ROLE_ADMIN', 'ROLE_GATEMAN', 'ROLE_PA'],
+        default: 'ROLE_ADMIN'
+    },
+    isDeleted: {
+        type: Boolean,
+        default: false
+    },
+    settings: {
+        receiveSMS: {
+            type: Boolean,
+            default: null,
+        },
+        receiveEmail: {
+            type: Boolean,
+            default: null,
+        },
+    },
+    deviceId: {
+        type: [String],
+        default: null
     }
-);
+}, {
+    timestamps: true
+});
 
 UserSchema.pre('save', function (next) {
     var user = this;
@@ -77,10 +91,20 @@ UserSchema.methods.comparePassword = function (passw, cb) {
         cb(null, isMatch);
     });
 };
+
+UserSchema.methods.isDeletedUser = function () {
+    return this.isDeleted === true;
+};
+
 UserSchema.set('toJSON', {
     transform: function (doc, ret, options) {
         delete ret.__v;
         delete ret.password;
     }
+});
+
+UserSchema.index({
+    phoneNumber: 1,
+    name: 1
 });
 module.exports = mongoose.model('user', UserSchema);

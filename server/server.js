@@ -11,11 +11,13 @@ const httpStatus = require('http-status');
 const helmet = require('helmet');
 const logger = require('./helpers/logger');
 const chalk = require('chalk');
-
+var socketio = require('socket.io');
+var io = socketio();
 var dotenv = require('dotenv');
 // Create Express app
 const app = express();
-
+const routes = express.Router();
+app.io = io;
 // Load environment variables from .env file
 dotenv.load();
 // make bluebird default Promise
@@ -36,6 +38,8 @@ app.use(methodOverride());
 app.use(expressValidator());
 app.use(cookieParser());
 
+//const rateLimit = require('./middleware/ratelimit').limiter;
+
 if (process.env.NODE_ENV === 'development') {
     app.use(httpLogger('dev'));
 }
@@ -48,15 +52,28 @@ app.use(cors());
 app.use(passport.initialize());
 app.use('/apidoc', express.static('docs'));
 
+// file uploads is public static , with the /uploads path , it knows which paths it runs
+app.use('/uploads', express.static('uploads'));
 app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     next();
 });
 
+// Apply ratelimiter
+//Prevents Bruteforces from the same IP
+//app.use(rateLimit);
 
-const authRouter = require('./routes/auth.router');
-app.use("/api/auth", authRouter);
+// pass the authorization checker middleware
+//const authCheckMiddleware = require('./middleware/authCheck');
+//app.get('/api', authCheckMiddleware);
+
+//const authRouter = require('./routes/auth.router');
+//app.use("/api/auth", authRouter);
+// Add all the routes inside the routes folder
+require('./routes')(routes);
+// apply the routes to our application with the prefix /api
+app.use('/api', routes);
 
 
 // catch 404 and forward to error handler
@@ -71,3 +88,5 @@ app.listen(PORT, function (error) {
         logger.info(chalk.green.bold(`IZN API Server listen on port: ${PORT}`));
     }
 });
+
+module.exports = app;
