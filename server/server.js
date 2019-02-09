@@ -16,6 +16,7 @@ var io = socketio();
 var dotenv = require('dotenv');
 // Create Express app
 const app = express();
+const routes = express.Router();
 app.io = io;
 // Load environment variables from .env file
 dotenv.load();
@@ -37,6 +38,8 @@ app.use(methodOverride());
 app.use(expressValidator());
 app.use(cookieParser());
 
+//const rateLimit = require('./middleware/ratelimit').limiter;
+
 if (process.env.NODE_ENV === 'development') {
     app.use(httpLogger('dev'));
 }
@@ -49,13 +52,17 @@ app.use(cors());
 app.use(passport.initialize());
 app.use('/apidoc', express.static('docs'));
 
+// file uploads is public static , with the /uploads path , it knows which paths it runs
+app.use('/uploads', express.static('uploads'));
 app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     next();
 });
 
-const routes = express.Router();
+// Apply ratelimiter
+//Prevents Bruteforces from the same IP
+//app.use(rateLimit);
 
 // pass the authorization checker middleware
 //const authCheckMiddleware = require('./middleware/authCheck');

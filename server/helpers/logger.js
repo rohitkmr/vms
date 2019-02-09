@@ -9,7 +9,7 @@ if (env === 'development') {
         // Create the directory if it does not exist
         fs.mkdirSync(logDir)
     }
-    logger = new(winston.Logger)({
+    logger = new (winston.Logger)({
         transports: [
             new winston.transports.Console({
                 level: 'debug', // Only write logs of warn level or higher
@@ -27,12 +27,12 @@ if (env === 'development') {
                 colorize: true
             }),
             new winston.transports.File({
-                filename: 'log/exceptions.log'
+                filename: 'logs/exceptions.log'
             })
         ]
     })
 } else {
-    logger = new(winston.Logger)({
+    logger = new (winston.Logger)({
         transports: [
             new winston.transports.Console({
                 level: 'debug', // Only write logs of warn level or higher
